@@ -1,4 +1,4 @@
-#!/goinfre/kyjo/TIL/transcendence/env/bin/python3
+#!/goinfre/kyjo/game/transcendence/env/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
