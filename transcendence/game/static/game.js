@@ -31,11 +31,14 @@ export default function OnlineGame(sock, game_type) {
       right.y = gameData.right.y * canvas.height;
       ball.x = gameData.ball.x * canvas.width;
       ball.y = gameData.ball.y * canvas.height;
+      ball.radius = right.width * (2 / 3);
       draw(left, right, ball);
     } else if (data.type === "four_player") {
       console.log('Parsed data:', data);
-      canvas.width = document.body.clientWidth;
-      canvas.height = document.body.clientHeight;
+      canvas.width = Math.min(document.body.clientWidth, document.body.clientHeight);
+      canvas.height = Math.min(document.body.clientWidth, document.body.clientHeight);
+      gameCanvas.style.width = `${canvas.width}px`;
+      gameCanvas.style.height = `${canvas.width}px`;
       left.height = canvas.height / 4;
       right.height = canvas.height / 4;
       left.width = canvas.width / 80;
@@ -55,6 +58,7 @@ export default function OnlineGame(sock, game_type) {
       down.y = gameData.down.y * canvas.height;
       ball.x = gameData.ball.x * canvas.width;
       ball.y = gameData.ball.y * canvas.height;
+      ball.radius = right.width * (2 / 3);
       draw_four(left, right, up, down, ball);
     } else if (data.type === "game_end") {
       endGame(data, ws);
@@ -75,8 +79,8 @@ export default function OnlineGame(sock, game_type) {
     window.addEventListener("beforeunload", disconnectWebSocket);
     canvas = $container.querySelector("#gameCanvas");
     ctx = canvas.getContext("2d");
-    canvas.width = document.body.clientWidth;
-    canvas.height = document.body.clientHeight;
+    canvas.width = Math.min(document.body.clientWidth, document.body.clientHeight);
+    canvas.height = Math.min(document.body.clientWidth, document.body.clientHeight);
     if (game_type == '4P')
     {
       canvas.width = canvas.height;
@@ -253,7 +257,6 @@ export default function OnlineGame(sock, game_type) {
         },
       }),
     );
-    
   }
 
   function endGame(data, ws) {

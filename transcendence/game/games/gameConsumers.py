@@ -25,11 +25,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
         await self.channel_layer.group_add(self.game_group, self.channel_name)
         await self.accept()
-        await self._increment_group_size(self.game_group)
-        group_size = await self._get_group_size(self.game_group)
-        # logger.info(f"User connected and added to group {self.game_group}")
-        # logger.info(f"Group size after connection: {group_size}")
-        # logger.info(f"my channel_name {self.channel_name}")
+        group_size = await self._increment_and_get_group_size(self.game_group)
 
         if group_size == max:
             self.player1 = True
@@ -48,12 +44,6 @@ class GameConsumer(AsyncWebsocketConsumer):
             self.player4 = True
         logger.info(self.player1)
 
-    async def _get_group_size(self, group_name):
-        size = await self.redis.get(group_name)
-        if size is None:
-            return 0
-        return int(size)
-
     async def receive(self, text_data):
         data = json.loads(text_data)
         type = data.get('type')
@@ -69,13 +59,32 @@ class GameConsumer(AsyncWebsocketConsumer):
         group_size = await self._get_group_size(self.game_group)
         logger.info(f"Group size after disconnection: {group_size}")
 
+    async def _get_group_size(self, group_name):
+        size = await self.redis.get(group_name)
+        if size is None:
+            return 0
+        return int(size)
+    
+    async def _increment_group_size(self, group_name):
+        await self.redis.incr(group_name)
+
+    async def _increment_and_get_group_size(self, group_name):
+        lua_script = """
+        local size = redis.call('INCR', KEYS[1])
+        return size
+        """
+        group_size = await self.redis.eval(lua_script, 1, group_name)
+        return group_size
+
+    async def _decrement_group_size(self, group_name):
+        await self.redis.decr(group_name)
+
     async def _game_start(self, message_data):
         match = await self._make_game_object(message_data)
         if self.type == '2P':
             await self._play_game(match, self.game_group)
         elif self.type == '4P':
             await self._play_game_four(match, self.game_group)
-
 
     async def _make_game_object(self, message_data):
         await self._init_object(message_data)
@@ -255,9 +264,3 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def game_start(self, event):
         await self.send(text_data=json.dumps(event))
-
-    async def _increment_group_size(self, group_name):
-        await self.redis.incr(group_name)
-
-    async def _decrement_group_size(self, group_name):
-        await self.redis.decr(group_name)

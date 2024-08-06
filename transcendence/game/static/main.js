@@ -38,12 +38,6 @@ function init() {
       button2P.style.display = 'none';
       button4P.style.display = 'none';
       buttonTournament.style.display = 'none';
-
-      // Make gameCanvas a square based on height
-      const inGame = document.querySelector('.in-game');
-      const sideLength = inGame.offsetHeight;
-      gameCanvas.style.width = `${sideLength}px`;
-      gameCanvas.style.height = `${sideLength}px`;
     };
   });
 

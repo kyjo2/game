@@ -64,11 +64,11 @@ class Ball:
     speed: float
     direction: tuple
 
-    def __init__(self, x, y):
-        self.radius = 10
+    def __init__(self, x, y, radius, speed):
+        self.radius = radius
         self.x = x
         self.y = y
-        self.speed = 30
+        self.speed = speed
         self.direction = (self.random_dir(), random.uniform(-1, 1))
 
     def move(self):
@@ -125,7 +125,7 @@ class PingPongGame:
         self.up = Player(Bar(bar_long, bar_short, (map_width - bar_long) / 2, 0))
         self.down = Player(Bar(bar_long, bar_short, (map_width - bar_long) / 2, map_height - bar_short))
         self.map = Map(map_width, map_height)
-        self.ball = Ball(map_width / 2, map_height / 2)
+        self.ball = Ball(map_width / 2, map_height / 2, bar_short * (2 / 3), 20)
         self.finished = False
         self.started_at = None
 
@@ -164,7 +164,7 @@ class PingPongGame:
         up_point = self.ball.y - self.ball.radius
 
         if up_point <= self.up.bar.y + self.up.bar.height:
-            if self.ball.x <= self.left.bar.x + self.left.bar.width and self.ball.x >= self.left.bar.x:
+            if self.ball.x <= self.up.bar.x + self.up.bar.width and self.ball.x >= self.up.bar.x:
                 self.ball.bounce([1, -1])
                 return False
             else:
@@ -174,7 +174,7 @@ class PingPongGame:
         down_point = self.ball.y + self.ball.radius
 
         if down_point >= self.down.bar.y:
-            if self.ball.x <= self.down.bar.x + self.down.bar.width and self.ball.x >= self.right.bar.x:
+            if self.ball.x <= self.down.bar.x + self.down.bar.width and self.ball.x >= self.down.bar.x:
                 self.ball.bounce([1, -1])
                 return False
             else:

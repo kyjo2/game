@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import uuid
@@ -22,8 +23,7 @@ class RankGameRoomConsumer(AsyncWebsocketConsumer):
         )
         await self.accept()
 
-        await self.increment_group_size(self.room_group_name)
-        await self.check_and_create_game()
+        await self.increment_and_check_group_size(self.room_group_name)
 
         logger.info(f'[RANK] 사용자 연결됨: {self.channel_name}, Game ID: {self.game_id}')
 
@@ -38,21 +38,12 @@ class RankGameRoomConsumer(AsyncWebsocketConsumer):
 
         logger.info(f'[RANK] 사용자 연결 해제됨: {self.channel_name}')
 
-    async def increment_group_size(self, group_name):
-        await self.redis.incr(group_name)
-
-    async def decrement_group_size(self, group_name):
-        await self.redis.decr(group_name)
-
-    async def get_group_size(self, group_name):
-        size = await self.redis.get(group_name)
-        if size is None:
-            return 0
-        return int(size)
-
-    async def check_and_create_game(self):
-        # 그룹의 사용자 수를 확인하는 로직
-        group_size = await self.get_group_size(self.room_group_name)
+    async def increment_and_check_group_size(self, group_name):
+        lua_script = """
+        local size = redis.call('INCR', KEYS[1])
+        return size
+        """
+        group_size = await self.redis.eval(lua_script, 1, group_name)
         logger.info(f'[RANK] 사용자 연결됨: {group_size}')
         
         if self.game_type == '2P':
@@ -65,6 +56,9 @@ class RankGameRoomConsumer(AsyncWebsocketConsumer):
                 await self.create_game()
             except Exception as e:
                 logger.error(f'게임 생성 오류: {e}')
+
+    async def decrement_group_size(self, group_name):
+        await self.redis.decr(group_name)
 
     async def create_game(self):
         await self.channel_layer.group_send(
