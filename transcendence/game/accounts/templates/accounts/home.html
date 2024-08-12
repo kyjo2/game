@@ -1,0 +1,23 @@
+<!-- accounts/templates/accounts/home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+<body>
+    <h1>Welcome to the Home Page</h1>
+    <form action="{% url 'signup' %}" method="get">
+        <button type="submit">Sign Up</button>
+    </form>
+    <form action="{% url 'login' %}" method="get">
+        <button type="submit">Log In</button>
+    </form>
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Log Out</button>
+    </form>
+    <!-- Add more buttons as needed -->
+</body>
+</html>

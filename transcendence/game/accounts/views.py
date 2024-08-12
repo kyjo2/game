@@ -32,7 +32,10 @@ def signup_view(request):
         if form.is_valid():
             user = form.save()
             login(request, user)  # 회원가입 후 자동 로그인
-            return redirect('home')  # 회원가입 후 리다이렉트할 URL
+            return redirect('login')  # 회원가입 후 리다이렉트할 URL
     else:
         form = SignUpForm()
     return render(request, 'accounts/signup.html', {'form': form})
+
+def home_view(request):
+    return render(request, 'accounts/home.html')

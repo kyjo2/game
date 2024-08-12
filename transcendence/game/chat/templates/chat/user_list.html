@@ -1,0 +1,46 @@
+<!-- templates/accounts/chat.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User List</title>
+    <style>
+        .user-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .user-list li {
+            margin: 10px 0;
+        }
+        .user-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .user-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Registered Users (excluding yourself)</h1>
+    <ul class="user-list">
+        {% for user in users %}
+            <li>
+                <form action="{% url 'room' user.id %}" method="get">
+                    <button type="submit" class="user-button">
+                        Chat with {{ user.username }}
+                    </button>
+                </form>
+            </li>
+        {% empty %}
+            <li>No other users found.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

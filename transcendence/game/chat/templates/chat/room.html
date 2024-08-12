@@ -1,0 +1,46 @@
+<!-- templates/chat/room.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Room</title>
+</head>
+<body>
+    <textarea id="chat-log" cols="100" rows="20" readonly>{{ messages_text }}</textarea><br>
+    <input id="chat-message-input" type="text" size="100">
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const others = "{{ other_user.id }}";
+            document.querySelector('#chat-log').value += '\n';
+            const chatSocket = new WebSocket(
+                `ws://${window.location.host}/ws/chat/${others}/`
+            );
+
+            chatSocket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                document.querySelector('#chat-log').value += (data.user_name + ': ' + data.message + '\n');
+            };
+
+            chatSocket.onclose = function(e) {
+                console.error('Chat socket closed unexpectedly');
+            };
+
+            const messageInput = document.querySelector('#chat-message-input');
+            if (messageInput) {
+                messageInput.focus();
+                messageInput.onkeyup = function(e) {
+                    if (e.keyCode === 13 && messageInput.value.trim() !== '') {  // Enter key
+                        const message = messageInput.value;
+                        chatSocket.send(JSON.stringify({
+                            'message': message,
+                        }));
+                        messageInput.value = '';
+                    }
+                };
+            } else {
+                console.error("Element with id 'chat-message-input' not found.");
+            }
+        });
+    </script>
+</body>
+</html>
