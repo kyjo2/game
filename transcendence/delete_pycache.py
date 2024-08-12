@@ -15,7 +15,7 @@ def delete_pycache(directory):
                 os.remove(file_path)
 
 # 프로젝트의 루트 디렉토리 경로로 바꿔주세요.
-project_root = '/Users/kyjo/goinfre/aa'
+project_root = '/Users/kyjo/goinfre/1228'
 
 delete_pycache(project_root)
 print("All __pycache__ directories and .pyc files deleted.")
